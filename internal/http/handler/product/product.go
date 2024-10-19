@@ -76,6 +76,7 @@ func GetById(storage storage.Storage) http.HandlerFunc {
     if err != nil {
       slog.Error(err.Error())
       response.WriteJson(w, http.StatusBadRequest, err)
+      return
     }
 
     response.WriteJson(w, http.StatusOK, product)
