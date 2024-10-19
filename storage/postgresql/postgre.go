@@ -2,8 +2,10 @@ package postgresql
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/joalvarezdev/go-gpt/internal/config"
+	"github.com/joalvarezdev/go-gpt/internal/types"
 	_ "github.com/lib/pq"
 )
 
@@ -51,4 +53,26 @@ func (p *Postgre) CreateProduct(name string, description string, price float64) 
   }
 
   return productId, nil
+}
+
+func (p *Postgre) GetByIdProduct(id int64) (types.Product, error) {
+  stmt, err := p.Db.Prepare("SELECT id, name, description, price FROM products WHERE id = $1")
+  if err != nil {
+    return types.Product{}, err
+  }
+
+  defer stmt.Close()
+
+  var product types.Product
+
+  err = stmt.QueryRow(id).Scan(&product.Id, &product.Name, &product.Description, &product.Price)
+  if err != nil {
+    if err == sql.ErrNoRows {
+      return types.Product{}, fmt.Errorf("no student found with id %s", fmt.Sprint(id))
+    }
+
+    return types.Product{}, fmt.Errorf("query error: %w", err)
+  }
+
+  return product, nil
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joalvarezdev/go-gpt/internal/types"
@@ -14,7 +15,7 @@ import (
 	"github.com/joalvarezdev/go-gpt/storage"
 )
 
-func CreateProduct(storage storage.Storage) http.HandlerFunc {
+func Create(storage storage.Storage) http.HandlerFunc {
   return func(w http.ResponseWriter, r *http.Request) {
     slog.Info("product created")
 
@@ -56,5 +57,27 @@ func CreateProduct(storage storage.Storage) http.HandlerFunc {
       "description": product.Description,
       "price": product.Price,
     })
+  }
+}
+
+func GetById(storage storage.Storage) http.HandlerFunc {
+  return func(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
+
+    slog.Info("getting a product", slog.String("id", id))
+
+    intId, err := strconv.ParseInt(id, 10, 64)
+    if err != nil {
+      response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+      return
+    }
+
+    product, err := storage.GetByIdProduct(intId)
+    if err != nil {
+      slog.Error(err.Error())
+      response.WriteJson(w, http.StatusBadRequest, err)
+    }
+
+    response.WriteJson(w, http.StatusOK, product)
   }
 }
