@@ -1,0 +1,7 @@
+env: "develop"
+
+storage-path: "user=postgres password=postgres dbname=go-gpt sslmode=disable"
+# storage-path: "storage/database.db"
+
+server:
+  port: "localhost:8090"
