@@ -32,6 +32,7 @@ func main() {
 
   router.HandleFunc("POST /products", product.Create(storage))
   router.HandleFunc("GET /products/{id}", product.GetById(storage))
+  router.HandleFunc("GET /products", product.GetAll(storage))
 
   // setup server
   server := http.Server{

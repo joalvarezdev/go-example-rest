@@ -76,3 +76,35 @@ func (p *Postgre) GetByIdProduct(id int64) (types.Product, error) {
 
   return product, nil
 }
+
+func (p *Postgre) GetAllProducts() ([]types.Product, error) {
+
+  stmt, err := p.Db.Prepare("SELECT id, name, description, price FROM products")
+  if err != nil {
+    return nil, err
+  }
+
+  defer stmt.Close()
+
+  rows, err := stmt.Query()
+  if err != nil {
+    return nil, err
+  }
+
+  defer rows.Close()
+
+  var products []types.Product
+
+  for rows.Next() {
+    var product types.Product
+
+    err = rows.Scan(&product.Id, &product.Name, &product.Description, &product.Price)
+    if err != nil {
+      return nil, err
+    }
+
+    products = append(products, product)
+  }
+
+  return products, nil
+}
